@@ -1,0 +1,8 @@
+name: MCLink
+version: '1.0'
+main: se.chs.gud.MCLink
+api-version: '1.21'
+load: STARTUP
+authors: [ G.U.D ]
+description: Authentication plugin used to validate CIDs for chalmers students and allow entrance
+website: https://gud.chs.se
