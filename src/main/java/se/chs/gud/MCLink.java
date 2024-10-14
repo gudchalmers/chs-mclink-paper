@@ -13,16 +13,16 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.URI;
 import java.net.http.HttpResponse;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public final class MCLink extends JavaPlugin implements Listener {
-    private static final String GUD_CHECK_ENDPOINT = "https://mc.chs.se/check";
-    private static final String GUD_REGISTER_ENDPOINT = "https://mc.chs.se/register";
-
     @Override
     public void onEnable() {
-        getLogger().info("Successfully Loaded!");
+        saveDefaultConfig();
         getServer().getPluginManager().registerEvents(this, this);
+        getLogger().info("Successfully Loaded!");
     }
 
     @Override
@@ -35,19 +35,18 @@ public final class MCLink extends JavaPlugin implements Listener {
         String playerName = event.getName();
         UUID uuid = event.getUniqueId();
 
-        try {
-            HttpClient client = HttpClient.newHttpClient();
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            HttpResponse<String> response;
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(GUD_CHECK_ENDPOINT))
+                    .uri(URI.create(Objects.requireNonNull(getConfig().getString("check"))))
                     .header("Content-Type", "application/x-www-form-urlencoded")
                     .POST(HttpRequest.BodyPublishers.ofString("uuid=" + uuid))
                     .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
             handleLoginResponse(event, playerName, response);
         } catch (Exception e) {
             getLogger().severe("Error: Couldn't complete HTTP request for user: " + playerName);
-            getLogger().severe("Stack trace:\n" + e);
+            getLogger().log(Level.SEVERE, "Stack trace: ", e);
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
                     Component.text("An error occurred while authenticating. Please try again."));
         }
@@ -64,7 +63,7 @@ public final class MCLink extends JavaPlugin implements Listener {
         } else {
             getLogger().info("Couldn't authenticate " + playerName + ".");
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
-                    Component.text("Please register at " + GUD_REGISTER_ENDPOINT));
+                    Component.text("Please register at " + Objects.requireNonNull(getConfig()).getString("register")));
         }
     }
 }
