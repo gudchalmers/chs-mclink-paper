@@ -83,7 +83,7 @@ public final class MCLink extends JavaPlugin implements Listener {
             List<WhitelistEntry> whitelistEntries = gson.fromJson(whitelistJson, new TypeToken<List<WhitelistEntry>>() {}.getType());
 
             for (WhitelistEntry entry : whitelistEntries) {
-                UUID whitelistUUID = UUID.fromString(entry.getUniqueId()); // Convert the string UUID to java.util.UUID
+                UUID whitelistUUID = UUID.fromString(entry.getUniqueId());
                 if (whitelistUUID.equals(uuid)) {
                     return true;
                 }
